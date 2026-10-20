@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFind | College Lost & Found</title>
+  <style>
+    :root {
+      --bg: #0b1020; --panel: #121a2d; --panel2: #18233a; --text: #edf2ff;
+      --muted: #9ba9c5; --line: #2b3854; --accent: #7c9cff; --accent2: #5ce0c0;
+      --danger: #ff7185; --input: #0d1527; --shadow: 0 18px 50px rgba(0,0,0,.25);
+    }
+    body.light {
+      --bg: #f2f5fb; --panel: #fff; --panel2: #f7f9ff; --text: #17213a;
+      --muted: #65718a; --line: #dfe5f0; --accent: #3e62df; --accent2: #087f69;
+      --danger: #c72f4d; --input: #fff; --shadow: 0 12px 35px rgba(24,42,80,.09);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .hidden { display: none !important; }
+    .login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: radial-gradient(circle at 15% 15%, rgba(91,119,255,.18), transparent 34%), radial-gradient(circle at 90% 85%, rgba(92,224,192,.12), transparent 30%), var(--bg); }
+    .login-card { width: min(430px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: 24px; padding: 34px; box-shadow: var(--shadow); }
+    .brand-mark { width: 48px; height: 48px; border-radius: 15px; display: grid; place-items: center; background: linear-gradient(135deg, var(--accent), #6a4df5); color: white; font-size: 24px; margin-bottom: 18px; }
+    h1, h2, h3, p { margin-top: 0; }
+    .login-card h1 { font-size: 28px; margin-bottom: 8px; letter-spacing: -.6px; }
+    .muted { color: var(--muted); line-height: 1.55; }
+    .field { display: grid; gap: 7px; margin: 17px 0; }
+    label { font-size: 13px; font-weight: 700; color: var(--muted); }
+    input, select, textarea { width: 100%; padding: 12px 13px; color: var(--text); background: var(--input); border: 1px solid var(--line); border-radius: 10px; outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,156,255,.13); }
+    textarea { resize: vertical; min-height: 90px; }
+    .btn { border: 0; border-radius: 10px; padding: 11px 15px; font-weight: 700; color: white; background: var(--accent); transition: transform .15s, opacity .15s; }
+    .btn:hover { transform: translateY(-1px); opacity: .93; }
+    .btn.full { width: 100%; margin-top: 6px; padding: 13px; }
+    .btn.secondary { background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
+    .btn.success { background: var(--accent2); color: #05231d; }
+    .btn.danger { background: var(--danger); color: white; }
+    .btn.small { font-size: 12px; padding: 8px 10px; }
+    .demo-hint { margin-top: 18px; padding: 12px; border-radius: 10px; background: var(--panel2); border: 1px solid var(--line); font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .error { color: var(--danger); font-size: 13px; min-height: 18px; margin-top: 10px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px clamp(16px, 4vw, 48px); border-bottom: 1px solid var(--line); background: var(--panel); }
+    .brand { display: flex; gap: 12px; align-items: center; }
+    .brand .brand-mark { margin: 0; width: 42px; height: 42px; font-size: 21px; }
+    .brand h2 { font-size: 19px; margin: 0; }
+    .brand small { color: var(--muted); }
+    .top-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .container { max-width: 1200px; margin: auto; padding: 30px 20px 60px; }
+    .hero { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 24px; }
+    .hero h1 { font-size: clamp(25px, 4vw, 36px); margin-bottom: 8px; }
+    .hero p { margin: 0; color: var(--muted); }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-bottom: 22px; }
+    .stat, .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+    .stat { padding: 18px; }
+    .stat span { color: var(--muted); font-size: 13px; }
+    .stat strong { display: block; font-size: 29px; margin-top: 7px; }
+    .workspace { display: grid; grid-template-columns: minmax(280px, .85fr) minmax(0, 1.6fr); gap: 18px; align-items: start; }
+    .panel { padding: 22px; }
+    .panel h2 { font-size: 19px; margin-bottom: 6px; }
+    .panel-intro { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .filters { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 10px; margin: 16px 0; }
+    .reports { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 13px; }
+    .report { border: 1px solid var(--line); background: var(--panel2); border-radius: 14px; overflow: hidden; min-width: 0; }
+    .report-image { width: 100%; height: 165px; object-fit: cover; display: block; background: var(--input); }
+    .report-content { padding: 15px; }
+    .report-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .report h3 { font-size: 16px; margin-bottom: 7px; overflow-wrap: anywhere; }
+    .category { color: var(--muted); font-size: 12px; }
+    .pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 8px; border-radius: 999px; background: rgba(124,156,255,.13); color: var(--accent); font-size: 11px; font-weight: 800; white-space: nowrap; }
+    .pill.returned { background: rgba(92,224,192,.15); color: var(--accent2); }
+    .description { color: var(--muted); font-size: 13px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; margin: 12px 0; }
+    .meta { display: grid; gap: 6px; font-size: 12px; color: var(--muted); }
+    .card-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+    .empty { text-align: center; color: var(--muted); padding: 45px 10px; grid-column: 1 / -1; }
+    .notice { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 12px; color: var(--muted); margin-top: 12px; }
+    @media (max-width: 850px) { .workspace { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 600px) { .topbar, .hero { align-items: flex-start; flex-direction: column; } .filters, .two, .reports { grid-template-columns: 1fr; } .login-card { padding: 25px; } .container { padding: 22px 13px 45px; } .panel { padding: 17px; } }
+  </style>
+</head>
+<body>
+  <section id="loginPage" class="login-wrap">
+    <form id="loginForm" class="login-card">
+      <div class="brand-mark">⌕</div>
+      <h1>Welcome to CampusFind</h1>
+      <p class="muted">A smarter way to reconnect lost belongings with their owners.</p>
+      <div class="field">
+        <label for="loginId">STUDENT EMAIL OR ID</label>
+        <input id="loginId" type="text" placeholder="student@college.edu" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="loginPassword">PASSWORD</label>
+        <input id="loginPassword" type="password" placeholder="Enter any password" autocomplete="current-password" required>
+      </div>
+      <button class="btn full" type="submit">Sign in to CampusFind →</button>
+      <div id="loginError" class="error" role="alert"></div>
+      <div class="demo-hint"><strong>Demo login</strong><br>Enter any non-empty student ID/email and password. No real account or backend is used.</div>
+    </form>
+  </section>
+
+  <section id="dashboardPage" class="hidden">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">⌕</div>
+        <div><h2>CampusFind</h2><small>College Lost &amp; Found Portal</small></div>
+      </div>
+      <div class="top-actions">
+        <button id="themeButton" class="btn secondary" type="button">☀️ Light mode</button>
+        <button id="logoutButton" class="btn secondary" type="button">Log out</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="hero">
+        <div><h1>Campus Lost &amp; Found</h1><p>Lost something? Found something? Help it find its owner.</p></div>
+        <button id="downloadButton" class="btn" type="button">⬇ Download Report (CSV)</button>
+      </div>
+
+      <section class="stats">
+        <div class="stat"><span>Total Reports</span><strong id="totalCount">0</strong></div>
+        <div class="stat"><span>Lost Items</span><strong id="lostCount">0</strong></div>
+        <div class="stat"><span>Found Items</span><strong id="foundCount">0</strong></div>
+        <div class="stat"><span>Returned Items</span><strong id="returnedCount">0</strong></div>
+      </section>
+
+      <div class="workspace">
+        <section class="panel">
+          <h2>＋ Add a Report</h2>
+          <p class="panel-intro">Enter the item details below.</p>
+          <form id="reportForm">
+            <div class="field"><label for="itemName">ITEM NAME *</label><input id="itemName" maxlength="80" placeholder="e.g. Black wallet" required></div>
+            <div class="two">
+              <div class="field"><label for="status">REPORT TYPE *</label><select id="status" required><option value="Lost">🔎 Lost item</option><option value="Found">📦 Found item</option></select></div>
+              <div class="field"><label for="category">CATEGORY *</label><select id="category" required>
+                <option value="Electronics">💻 Electronics</option><option value="ID Cards">🪪 ID Cards</option><option value="Bags">🎒 Bags</option><option value="Books">📚 Books</option><option value="Clothing">👕 Clothing</option><option value="Keys">🔑 Keys</option><option value="Accessories">⌚ Accessories</option><option value="Other">📌 Other</option>
+              </select></div>
+            </div>
+            <div class="two">
+              <div class="field"><label for="location">LOCATION *</label><input id="location" maxlength="100" placeholder="e.g. Library" required></div>
+              <div class="field"><label for="date">DATE *</label><input id="date" type="date" required></div>
+            </div>
+            <div class="field"><label for="contact">CONTACT DETAILS *</label><input id="contact" maxlength="100" placeholder="Email or phone number" required></div>
+            <div class="field"><label for="description">DESCRIPTION</label><textarea id="description" maxlength="500" placeholder="Colour, identifying details, or where you saw it..."></textarea></div>
+            <div class="field"><label for="itemImage">ITEM IMAGE (OPTIONAL, MAX 700 KB)</label><input id="itemImage" type="file" accept="image/*"></div>
+            <button id="submitButton" class="btn full" type="submit">＋ Add Report</button>
+            <div class="notice">Demo project: reports are stored in this browser only. Do not enter private or sensitive contact information.</div>
+          </form>
+        </section>
+
+        <section class="panel">
+          <h2>🔎 Browse Reports</h2>
+          <p class="panel-intro">Search and filter reports to find an item.</p>
+          <div class="filters">
+            <input id="searchInput" type="search" placeholder="Search item, location, contact...">
+            <select id="statusFilter"><option value="All">All statuses</option><option value="Lost">Lost</option><option value="Found">Found</option><option value="Returned">Returned</option></select>
+            <select id="categoryFilter"><option value="All">All categories</option><option>Electronics</option><option>ID Cards</option><option>Bags</option><option>Books</option><option>Clothing</option><option>Keys</option><option>Accessories</option><option>Other</option></select>
+          </div>
+          <div id="reportsGrid" class="reports"></div>
+        </section>
+      </div>
+    </main>
+  </section>
+
+  <script>
+    "use strict";
+    const STORAGE_KEY = "campusFindReports_v2";
+    const THEME_KEY = "campusFindTheme_v2";
+    const $ = (id) => document.getElementById(id);
+    let reports = [];
+
+    function loadReports() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        reports = Array.isArray(saved) ? saved : [];
+      } catch { reports = []; }
+    }
+    function saveReports() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
+        return true;
+      } catch (error) {
+        alert("Could not save this report. The browser may be out of storage space. Try an image smaller than 700 KB.");
+        return false;
+      }
+    }
+    function safeText(value) { return String(value ?? ""); }
+    function categoryIcon(category) {
+      return ({ "Electronics":"💻", "ID Cards":"🪪", "Bags":"🎒", "Books":"📚", "Clothing":"👕", "Keys":"🔑", "Accessories":"⌚", "Other":"📌" })[category] || "📌";
+    }
+    function formatDate(date) {
+      if (!date) return "Date not provided";
+      const parsed = new Date(date + "T00:00:00");
+      return Number.isNaN(parsed.getTime()) ? date : parsed.toLocaleDateString();
+    }
+    function updateStats() {
+      $("totalCount").textContent = reports.length;
+      $("lostCount").textContent = reports.filter(r => r.status === "Lost" && !r.returned).length;
+      $("foundCount").textContent = reports.filter(r => r.status === "Found" && !r.returned).length;
+      $("returnedCount").textContent = reports.filter(r => r.returned).length;
+    }
+    function makePill(text, returned = false) {
+      const span = document.createElement("span");
+      span.className = returned ? "pill returned" : "pill";
+      span.textContent = text;
+      return span;
+    }
+    function renderReports() {
+      updateStats();
+      const grid = $("reportsGrid");
+      grid.replaceChildren();
+      const query = $("searchInput").value.trim().toLowerCase();
+      const statusFilter = $("statusFilter").value;
+      const categoryFilter = $("categoryFilter").value;
+      const filtered = reports.filter(r => {
+        const searchable = [r.name, r.location, r.description, r.contact, r.category, r.status].join(" ").toLowerCase();
+        const matchesQuery = searchable.includes(query);
+        const matchesStatus = statusFilter === "All" || (statusFilter === "Returned" ? !!r.returned : r.status === statusFilter && !r.returned);
+        const matchesCategory = categoryFilter === "All" || r.category === categoryFilter;
+        return matchesQuery && matchesStatus && matchesCategory;
+      }).sort((a,b) => b.createdAt - a.createdAt);
+
+      if (!filtered.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "🔍 No reports found. Try another search or add a report.";
+        grid.appendChild(empty);
+        return;
+      }
+      filtered.forEach(report => {
+        const article = document.createElement("article");
+        article.className = "report";
+        if (report.image) {
+          const image = document.createElement("img");
+          image.className = "report-image";
+          image.src = report.image;
+          image.alt = "Image of " + safeText(report.name);
+          article.appendChild(image);
+        }
+        const content = document.createElement("div");
+        content.className = "report-content";
+        const head = document.createElement("div");
+        head.className = "report-head";
+        const titleBox = document.createElement("div");
+        const title = document.createElement("h3");
+        title.textContent = categoryIcon(report.category) + " " + safeText(report.name);
+        titleBox.appendChild(title);
+        const category = document.createElement("div");
+        category.className = "category";
+        category.textContent = safeText(report.category) + " · " + formatDate(report.date);
+        titleBox.appendChild(category);
+        head.append(titleBox, makePill(report.returned ? "RETURNED" : report.status.toUpperCase(), !!report.returned));
+        content.appendChild(head);
+
+        const description = document.createElement("p");
+        description.className = "description";
+        description.textContent = report.description || "No description provided.";
+        content.appendChild(description);
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        [["📍 Location", report.location], ["✉ Contact", report.contact]].forEach(([label, value]) => {
+          const line = document.createElement("div");
+          line.textContent = label + ": " + safeText(value);
+          meta.appendChild(line);
+        });
+        content.appendChild(meta);
+
+        const actions = document.createElement("div");
+        actions.className = "card-actions";
+        if (report.status === "Found" && !report.returned) {
+          const claim = document.createElement("button");
+          claim.type = "button";
+          claim.className = "btn small";
+          claim.textContent = report.claimRequested ? "✓ Claim Requested" : "🤝 Claim Item";
+          claim.addEventListener("click", () => {
+            report.claimRequested = !report.claimRequested;
+            if (saveReports()) renderReports();
+          });
+          actions.appendChild(claim);
+        }
+        const returnedButton = document.createElement("button");
+        returnedButton.type = "button";
+        returnedButton.className = "btn small " + (report.returned ? "secondary" : "success");
+        returnedButton.textContent = report.returned ? "↩ Undo Returned" : "✓ Mark as Returned";
+        returnedButton.addEventListener("click", () => {
+          report.returned = !report.returned;
+          if (saveReports()) renderReports();
+        });
+        actions.appendChild(returnedButton);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "btn small danger";
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", () => {
+          if (confirm("Delete this report?")) {
+            reports = reports.filter(r => r.id !== report.id);
+            saveReports();
+            renderReports();
+          }
+        });
+        actions.appendChild(deleteButton);
+        content.appendChild(actions);
+        article.appendChild(content);
+        grid.appendChild(article);
+      });
+    }
+
+    function readImage(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) return resolve("");
+        if (!file.type.startsWith("image/")) return reject(new Error("Please select an image file."));
+        if (file.size > 700 * 1024) return reject(new Error("Please choose an image smaller than 700 KB."));
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error("Could not read the image. Please try another file."));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    $("loginForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const loginId = $("loginId").value.trim();
+      const password = $("loginPassword").value;
+      if (!loginId || !password.trim()) {
+        $("loginError").textContent = "Enter both a student ID/email and a password.";
+        return;
+      }
+      $("loginError").textContent = "";
+      $("loginPage").classList.add("hidden");
+      $("dashboardPage").classList.remove("hidden");
+      loadReports();
+      renderReports();
+    });
+
+    $("logoutButton").addEventListener("click", () => {
+      $("dashboardPage").classList.add("hidden");
+      $("loginPage").classList.remove("hidden");
+      $("loginPassword").value = "";
+    });
+
+    $("reportForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const submitButton = $("submitButton");
+      submitButton.disabled = true;
+      try {
+        const image = await readImage($("itemImage").files[0]);
+    
+const report = {
+          id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random()),
+          name: $("itemName").value.trim(),
+          status: $("status").value,
+          category: $("category").value,
+          location: $("location").value.trim(),
+          date: $("date").value,
+          contact: $("contact").value.trim(),
+          description: $("description").value.trim(),
+          image,
+          returned: false,
+          claimRequested: false,
+          createdAt: Date.now()
+        };
+        if (!report.name || !report.location || !report.date || !report.contact) {
+          alert("Please fill in all required fields.");
+          return;
+        }
+        reports.push(report);
+        if (saveReports()) {
+          $("reportForm").reset();
+          $("date").value = new Date().toISOString().slice(0, 10);
+          renderReports();
+        } else {
+          reports.pop();
+        }
+      } catch (error) {
+        alert(error.message || "Unable to add report.");
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+
+    ["searchInput", "statusFilter", "categoryFilter"].forEach(id => $(id).addEventListener(id === "searchInput" ? "input" : "change", renderReports));
+
+    $("themeButton").addEventListener("click", () => {
+      document.body.classList.toggle("light");
+      const isLight = document.body.classList.contains("light");
+      $("themeButton").textContent = isLight ? "🌙 Dark mode" : "☀️ Light mode";
+      localStorage.setItem(THEME_KEY, isLight ? "light" : "dark");
+    });
+
+    $("downloadButton").addEventListener("click", () => {
+      const headers = ["Item Name", "Status", "Category", "Location", "Date", "Contact", "Description", "Claim Requested", "Returned"];
+      const quoteCSV = value => '"' + safeText(value).replace(/"/g, '""') + '"';
+      const rows = reports.map(r => [r.name, r.status, r.category, r.location, r.date, r.contact, r.description, r.claimRequested ? "Yes" : "No", r.returned ? "Yes" : "No"]);
+      const csv = "\uFEFF" + [headers, ...rows].map(row => row.map(quoteCSV).join(",")).join("\r\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "CampusFind_Report.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem(THEME_KEY) === "light") {
+        document.body.classList.add("light");
+        $("themeButton").textContent = "🌙 Dark mode";
+      }
+      $("date").value = new Date().toISOString().slice(0, 10);
+    });
+  </script>
+</body>
+</html>
